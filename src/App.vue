@@ -1,18 +1,13 @@
 <template>
   <div id="app">
-    <Planner/>
+    <router-view></router-view>
   </div>
 </template>
 
 <script>
-import Planner from './views/Planner.vue'
-
 export default {
-  name: 'app',
-  components: {
-    Planner
-  }
-}
+  name: 'App'
+};
 </script>
 
 <style>
@@ -22,8 +17,7 @@ export default {
   -moz-osx-font-smoothing: grayscale;
   text-align: center;
   color: #2c3e50;
+  /* 移除 body 的 margin */
+  margin: 0;
 }
-  body {
-    margin: 0;
-  }
 </style>
