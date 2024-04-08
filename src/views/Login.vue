@@ -39,7 +39,7 @@ export default {
                 })
                     .then(response => {
                         alert(response.data.message);
-                        this.$router.push('/Planner');
+                        this.$router.push('/questions');
                     })
                     .catch(error => {
                         this.error = 'Invalid credentials';

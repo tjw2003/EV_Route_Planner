@@ -4,9 +4,9 @@ package main
 
 import (
 	"database/sql"
-	"fmt"
 	"log"
 	"net/http"
+	"math/rand"
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
@@ -20,19 +20,16 @@ type LoginRequest struct {
 	Password string `json:"password"`
 }
 type RegisterRequest struct {
-    NewUsername string `json:"newUsername"`
-    NewPassword string `json:"newPassword"`
+	NewUsername string `json:"newUsername"`
+	NewPassword string `json:"newPassword"`
 }
-
 
 func main() {
 	// 连接 MySQL 数据库
 	var err error
-	db, err = sql.Open("mysql", "root:root@tcp(localhost:3306)/users")
+	db, err = sql.Open("mysql", "ev_charge:SwrYELjFZFXTirrT@tcp(110.42.98.180:3306)/ev_charge")
 	if err != nil {
 		log.Fatal(err)
-	} else {
-		log.Println("成功连接")
 	}
 	defer db.Close()
 	// 测试连接是否正常
@@ -40,12 +37,12 @@ func main() {
 		log.Fatal("Database ping failed:", err)
 	}
 
-	var username string
-	err = db.QueryRow("SELECT username FROM users WHERE id = ?", 1).Scan(&username)
-	if err != nil {
-		log.Fatal("Error fetching username:", err.Error())
-	}
-	fmt.Println("Username retrieved from database:", username)
+	// var username string
+	// err = db.QueryRow("SELECT USERNAME FROM USERS WHERE ID = ?", 1).Scan(&username)
+	// if err != nil {
+	// 	log.Fatal("Error fetching username:", err.Error())
+	// }
+	// fmt.Println("Username retrieved from database:", username)
 
 	// 初始化 Gin 框架
 	router := gin.Default()
@@ -76,10 +73,10 @@ func getDatabaseName(db *sql.DB) string {
 
 func loginHandler(c *gin.Context) {
 	if db == nil {
-        log.Fatal("Database connection is nil")
-        c.JSON(http.StatusInternalServerError, gin.H{"error": "Database connection error"})
-        return
-    }
+		log.Fatal("Database connection is nil")
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Database connection error"})
+		return
+	}
 	var req LoginRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request payload"})
@@ -95,7 +92,7 @@ func loginHandler(c *gin.Context) {
 	// 打印数据库名字
 	dbName := getDatabaseName(db)
 	log.Println("Connected to database:", dbName)
-	err := db.QueryRow("SELECT password FROM users WHERE username = ?", username).Scan(&storedPassword)
+	err := db.QueryRow("SELECT PASSWORD FROM USERS WHERE USERNAME = ?", username).Scan(&storedPassword)
 	if err != nil {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid credentials"})
 		return
@@ -113,50 +110,53 @@ func loginHandler(c *gin.Context) {
 }
 
 func registerHandler(c *gin.Context) {
-	 // 解析注册请求的 JSON 数据
-	 var req RegisterRequest
-	 if err := c.ShouldBindJSON(&req); err != nil {
-		 c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request payload"})
-		 return
-	 }
- 
-	 // 输出请求体内容进行调试
-	 log.Printf("Received register request: %+v\n", req)
- 
-	 // 从请求中获取用户名和密码
-	 username := req.NewUsername
-	 password := req.NewPassword
- 
-	 // 检查数据库连接是否有效
-	 if db == nil {
-		 log.Fatal("Database connection is nil")
-		 c.JSON(http.StatusInternalServerError, gin.H{"error": "Database connection error"})
-		 return
-	 }
- 
-	 // 检查用户名是否已存在于数据库中
-	 var existingUsername string
-	 err := db.QueryRow("SELECT username FROM users WHERE username = ?", username).Scan(&existingUsername)
-	 if err == nil {
-		 // 如果用户名已存在，则返回用户名已存在的错误
-		 c.JSON(http.StatusConflict, gin.H{"error": "Username already exists"})
-		 return
-	 } else if err != sql.ErrNoRows {
-		 // 如果查询出错，返回内部服务器错误
-		 log.Println("Error checking username existence:", err)
-		 c.JSON(http.StatusInternalServerError, gin.H{"error": "Database error"})
-		 return
-	 }
- 
-	 // 在数据库中插入新用户
-	 _, err = db.Exec("INSERT INTO users (username, password) VALUES (?, ?)", username, password)
-	 if err != nil {
-		 // 插入用户时发生错误，返回内部服务器错误
-		 log.Println("Error registering user:", err)
-		 c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to register user"})
-		 return
-	 }
- 
-	 // 注册成功，返回成功消息
-	 c.JSON(http.StatusOK, gin.H{"message": "Registration successful"})
+	// 解析注册请求的 JSON 数据
+    var req RegisterRequest
+    if err := c.ShouldBindJSON(&req); err != nil {
+        c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request payload"})
+        return
+    }
+
+    // 输出请求体内容进行调试
+    log.Printf("Received register request: %+v\n", req)
+
+    // 从请求中获取用户名和密码
+    username := req.NewUsername
+    password := req.NewPassword
+
+    // 检查数据库连接是否有效
+    if db == nil {
+        log.Fatal("Database connection is nil")
+        c.JSON(http.StatusInternalServerError, gin.H{"error": "Database connection error"})
+        return
+    }
+
+    // 检查用户名是否已存在于数据库中
+    var existingUsername string
+    err := db.QueryRow("SELECT USERNAME FROM USERS WHERE USERNAME = ?", username).Scan(&existingUsername)
+    if err == nil {
+        // 如果用户名已存在，则返回用户名已存在的错误
+        c.JSON(http.StatusConflict, gin.H{"error": "Username already exists"})
+        return
+    } else if err != sql.ErrNoRows {
+        // 如果查询出错，返回内部服务器错误
+        log.Println("Error checking username existence:", err)
+        c.JSON(http.StatusInternalServerError, gin.H{"error": "Database error"})
+        return
+    }
+
+    userID := generateRandomID()
+
+	_, err = db.Exec("INSERT INTO USERS (ID, USERNAME, PASSWORD) VALUES (?, ?, ?)", userID, username, password)
+	if err != nil {
+		log.Println("Error registering user:", err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to register user"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "Registration successful", "userID": userID})
+}
+func generateRandomID() int {
+	// 生成一个 6 位的随机数字作为用户 ID
+	return rand.Intn(900000) + 100000 // 生成 100000 到 999999 之间的随机数
 }
