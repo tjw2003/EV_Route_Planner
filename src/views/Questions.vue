@@ -100,13 +100,12 @@ export default {
   methods: {
     submitQuestionnaire() {
       // 收集用户的回答
-      const answers = this.responses;
-      // 可以在这里将答案发送到后端或进行其他处理
+      const answers = this.responses.map(response => parseInt(response, 10));
       console.log('用户的答案：', answers);
       // 构建请求数据
       const requestData = {
         "APIKEY": "DBUICFAOIUDFBASDBNFAI", // 固定的 APIKEY
-        "USERID": "1", // 这里假设 USERID 是固定值 "1"，实际应该根据登录用户的信息设置
+        "USERID": "1", 
         "answers": answers
       };
 

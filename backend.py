@@ -1,8 +1,10 @@
 # -*- coding: utf-8 -*-
 
 from flask import Flask, request, jsonify
+from flask_cors import CORS
 
 app = Flask(__name__)
+CORS(app, resources={r"/*": {"origins": "*"}})  # 允许所有来源的请求访问你的应用
 
 # 预定义的APIKEY
 PREDEFINED_APIKEY = "DBUICFAOIUDFBASDBNFAI"
